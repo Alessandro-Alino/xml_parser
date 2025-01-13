@@ -79,12 +79,24 @@ class XMLSuccessWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Export Exel
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              context
+                                  .read<XMLBloc>()
+                                  .exportExel(state.proxiesList);
+                            },
+                            child: const Text('Export Exel'),
+                          )
+                        ],
+                      ),
                       // Filter
                       SizedBox(
                         height: 80.0,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-
                           children: [
                             ...Method.values.map(
                               (e) => Padding(

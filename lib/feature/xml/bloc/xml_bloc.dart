@@ -1,7 +1,9 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
+import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:xml/xml.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
@@ -19,6 +21,8 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
     on<ParsingXMLEvent>((event, emit) async => await _parsingXML(event, emit));
     on<FilterXMLEvent>((event, emit) async =>
         await _filterPerMethod(event, emit, event.method, event.reset));
+    on<ExportExelEvent>(
+        (event, emit) async => await _exportExel(event, emit, event.apiList));
   }
 
   //_____v_____//
@@ -32,6 +36,8 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
         method: method,
         reset: reset,
       ));
+
+  exportExel(List<XMLModel> apiList) => add(ExportExelEvent(apiList: apiList));
 
   //_____^_____//
 
@@ -88,7 +94,7 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
 
   // Parsing the XML selected
   Future<void> _parsingXML(XMLEvent event, Emitter<XMLState> emit) async {
-    if (state.file != null || state.fileWeb!=null) {
+    if (state.file != null || state.fileWeb != null) {
       emit(state.copyWith(parsingStatus: ParsingXMLStatus.loading));
       final List<XMLModel> proxiesList = [];
       final String fileContents;
@@ -150,22 +156,112 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
     }
   }
 
-  // Extract the API and Method
-  XMLModel extractApiAndMethod(String input) {
-    // Regex to match the path
-    final RegExp apiRegex = RegExp(r'MatchesPath\s*"([^"]+)"');
-    final RegExpMatch? apiMatch = apiRegex.firstMatch(input);
+  // Export list of API in Exel table
+  Future<void> _exportExel(
+    XMLEvent event,
+    Emitter<XMLState> emit,
+    List<XMLModel> apiList,
+  ) async {
+    // Create a new Excel document
+    final excel = Excel.createExcel();
 
-    // Regex to match the HTTP method
-    final RegExp methodRegex = RegExp(r'request\.verb\s*=\s*"([^"]+)"');
-    final RegExpMatch? methodMatch = methodRegex.firstMatch(input);
+    // Get the default sheet
+    final Sheet sheet = excel[excel.getDefaultSheet()!];
 
-    // Extract values if both matches are found
-    final String? api = apiMatch?.group(1);
-    final String? methodString = methodMatch?.group(1);
+    // Define headers
+    final List<CellValue> headers = [
+      TextCellValue('APPLICATION'),
+      TextCellValue('API'),
+      TextCellValue('METHOD'),
+    ];
 
-    Method method = Method.values.singleWhere((e) => e.name == methodString);
+    final CellStyle cellStyle = CellStyle(
+      horizontalAlign: HorizontalAlign.Center,
+      verticalAlign: VerticalAlign.Center,
+      topBorder: Border(borderStyle: BorderStyle.Thin),
+      rightBorder: Border(borderStyle: BorderStyle.Thin),
+      bottomBorder: Border(borderStyle: BorderStyle.Thin),
+      leftBorder: Border(borderStyle: BorderStyle.Thin),
+    );
 
-    return XMLModel(api: api, method: method);
+    // Write headers
+    for (var i = 0; i < headers.length; i++) {
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
+        ..value = headers[i]
+        ..cellStyle = cellStyle.copyWith(boldVal: true, fontSizeVal: 12);
+
+      // Auto-fit columns
+      sheet.setColumnAutoFit(i);
+    }
+
+    // Write Rows
+    for (var i = 0; i < apiList.length; i++) {
+      // Application
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i + 1))
+        ..value = TextCellValue(
+          state.xmlDocument!
+              .findAllElements('BasePath')
+              .first
+              .innerText
+              .replaceAll('/', ''),
+        )
+        ..cellStyle = cellStyle;
+      // Api
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i + 1))
+        ..value = TextCellValue('${apiList[i].api}')
+        ..cellStyle = cellStyle;
+      //Method
+      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: i + 1))
+        ..value = TextCellValue(apiList[i].method!.name)
+        ..cellStyle = cellStyle;
+    }
+    // Merge cells in the first column
+    sheet
+      ..merge(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1),
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: apiList.length),
+      )
+      ..setMergedCellStyle(
+        CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 1),
+        cellStyle,
+      );
+
+    // Save the file
+    // Filename
+    final String fileName = '${state.fileName!.substring(
+      0,
+      state.fileName!.lastIndexOf('.'),
+    )}.xlsx';
+
+    // For Flutter Web auto-start download
+    final List<int> fileBytes = excel.save(fileName: fileName)!;
+
+    // For all other platforms
+    if (!kIsWeb) {
+      final Directory? directory = await getDownloadsDirectory();
+
+      File(join('${directory!.path}/$fileName'))
+        ..createSync(recursive: true)
+        ..writeAsBytesSync(fileBytes);
+    }
   }
+}
+
+// Extract the API and Method
+XMLModel extractApiAndMethod(String input) {
+  // Regex to match the path
+  final RegExp apiRegex = RegExp(r'MatchesPath\s*"([^"]+)"');
+  final RegExpMatch? apiMatch = apiRegex.firstMatch(input);
+
+  // Regex to match the HTTP method
+  final RegExp methodRegex = RegExp(r'request\.verb\s*=\s*"([^"]+)"');
+  final RegExpMatch? methodMatch = methodRegex.firstMatch(input);
+
+  // Extract values if both matches are found
+  final String? api = apiMatch?.group(1);
+  final String? methodString = methodMatch?.group(1);
+
+  Method method = Method.values.singleWhere((e) => e.name == methodString);
+
+  return XMLModel(api: api, method: method);
 }

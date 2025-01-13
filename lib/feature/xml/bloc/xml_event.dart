@@ -18,11 +18,20 @@ class ParsingXMLEvent extends XMLEvent {
 }
 
 class FilterXMLEvent extends XMLEvent {
-  FilterXMLEvent({required this.method,this.reset});
+  FilterXMLEvent({required this.method, this.reset});
 
   final Method method;
   final bool? reset;
 
   @override
-  List<Object?> get props => [method,reset];
+  List<Object?> get props => [method, reset];
+}
+
+class ExportExelEvent extends XMLEvent {
+  ExportExelEvent({required this.apiList});
+
+  final List<XMLModel> apiList;
+
+  @override
+  List<Object?> get props => [apiList];
 }
