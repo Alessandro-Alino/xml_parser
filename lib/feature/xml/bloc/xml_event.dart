@@ -1,37 +1,31 @@
 part of 'xml_bloc.dart';
 
-abstract class XMLEvent extends Equatable {}
+@freezed
+sealed class XMLEvent with _$XMLEvent {
+  const factory XMLEvent.initXML() = _InitXMLEvent;
 
-class InitXMLEvent extends XMLEvent {
-  @override
-  List<Object?> get props => [];
-}
+  const factory XMLEvent.selectXML() = _SelectXMLEvent;
 
-class SelectXMLEvent extends XMLEvent {
-  @override
-  List<Object?> get props => [];
-}
+  const factory XMLEvent.parsingXML() = _ParsingXMLEvent;
 
-class ParsingXMLEvent extends XMLEvent {
-  @override
-  List<Object?> get props => [];
-}
+  const factory XMLEvent.filterXML({
+    final Method? method,
+    final bool? reset,
+  }) = _FilterXMLEvent;
 
-class FilterXMLEvent extends XMLEvent {
-  FilterXMLEvent({required this.method, this.reset});
+  const factory XMLEvent.xmlToExel({
+    required List<XMLModel> apiList,
+  }) = _XMLtoExelEvent;
 
-  final Method method;
-  final bool? reset;
+  const factory XMLEvent.exportPostman({
+    required List<XMLModel> apiList,
+  }) = _ExportPostmanEvent;
 
-  @override
-  List<Object?> get props => [method, reset];
-}
+  const factory XMLEvent.onDropEvent({
+    required bool isDropping,
+  }) = _OnDropEvent;
 
-class ExportExelEvent extends XMLEvent {
-  ExportExelEvent({required this.apiList});
-
-  final List<XMLModel> apiList;
-
-  @override
-  List<Object?> get props => [apiList];
+  const factory XMLEvent.onPerformDropEvent({
+    required PerformDropEvent dropEvent,
+  }) = _OnPerformDropEvent;
 }

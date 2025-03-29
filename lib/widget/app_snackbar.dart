@@ -6,10 +6,11 @@ extension BuildContextHelper on BuildContext {
       ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
+          width: 450.0,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           backgroundColor:
-          isError == null ? Colors.green.shade700 : Colors.red.shade700,
+              isError == null ? Colors.green.shade700 : Colors.red.shade700,
           content: Row(
             spacing: 10.0,
             mainAxisAlignment: MainAxisAlignment.start,

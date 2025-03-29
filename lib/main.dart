@@ -1,9 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:xml_parser/feature/api/bloc/api_bloc.dart';
 import 'package:xml_parser/feature/xml/bloc/xml_bloc.dart';
-import 'package:xml_parser/feature/xml/screen/xml_page.dart';
 import 'package:xml_parser/config/theme/cubit/theme_cubit.dart';
+import 'package:xml_parser/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,8 +23,10 @@ class AppProvider extends StatelessWidget {
         BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..getTheme()),
         // XML Bloc
         BlocProvider<XMLBloc>(create: (context) => XMLBloc()),
+        // API Bloc
+        BlocProvider<ApiBloc>(create: (context) => ApiBloc()),
       ],
-      child: GestureDetector(child: child),
+      child: child,
     );
   }
 }
@@ -48,9 +51,10 @@ class MyApp extends StatelessWidget {
               dragDevices: {
                 PointerDeviceKind.touch,
                 PointerDeviceKind.mouse,
+                PointerDeviceKind.trackpad,
               },
             ),
-            home: const XmlPage(),
+            home: const HomePage(),
           );
         },
       ),
