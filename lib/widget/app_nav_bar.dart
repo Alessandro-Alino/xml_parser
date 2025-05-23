@@ -46,13 +46,20 @@ class AppNavBar extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   items: [
+                    // XML PArser
                     BottomNavigationBarItem(
                       label: 'XML Parser',
                       icon: Icon(Icons.account_tree_rounded),
                     ),
+                    // Generate XML API
                     BottomNavigationBarItem(
                       label: 'Generate API',
                       icon: Icon(Icons.api),
+                    ),
+                    // Sent base64 list
+                    BottomNavigationBarItem(
+                      label: 'Upload',
+                      icon: Icon(Icons.upload_rounded),
                     ),
                   ]),
             ),

@@ -132,7 +132,7 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
       return null;
     }
 
-    // Only for Desktop Versione
+    // Only for Desktop Version
     if (item.dataReader!.canProvide(Formats.fileUri)) {
       item.dataReader!.getValue(Formats.fileUri, (value) {
         if (value != null) {

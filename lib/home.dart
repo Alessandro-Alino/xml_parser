@@ -3,6 +3,8 @@ import 'package:xml_parser/feature/api/screen/api_page.dart';
 import 'package:xml_parser/feature/xml/screen/xml_page.dart';
 import 'package:xml_parser/widget/app_nav_bar.dart';
 
+import 'feature/upload/screen/upload_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -37,6 +39,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               XmlPage(),
               ApiPage(),
+              UploadPage(),
             ],
           ),
         ),
