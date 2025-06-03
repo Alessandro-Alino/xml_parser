@@ -21,9 +21,6 @@ class SupabaseDB {
     const url = String.fromEnvironment('project_url');
     const anonKey = String.fromEnvironment('anon_public');
 
-    assert(url.isNotEmpty, 'project_url mancante!');
-    assert(anonKey.isNotEmpty, 'anon_public mancante!');
-
     await Supabase.initialize(url: url, anonKey: anonKey);
     _client = Supabase.instance.client;
   }

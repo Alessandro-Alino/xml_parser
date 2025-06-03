@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,11 +22,11 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
   }
 
   //-----v-----//
-  init() => add(_InitEvent());
+  void init() => add(_InitEvent());
 
-  pickFile() => add(_PickFileEvent());
+  void pickFile() => add(_PickFileEvent());
 
-  uploadFile(
+  void uploadFile(
           {required String filePath,
           Uint8List? fileWeb,
           required String fileName}) =>
