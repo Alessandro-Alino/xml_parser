@@ -21,11 +21,11 @@ part 'xml_bloc.freezed.dart';
 
 class XMLBloc extends Bloc<XMLEvent, XMLState> {
   XMLBloc() : super(XMLState.initState()) {
-    on<_InitXMLEvent>((event, emit) async => await _init(event, emit));
+    on<_InitXMLEvent>((event, emit) => _init(event, emit));
     on<_SelectXMLEvent>((event, emit) async => await _selectXML(event, emit));
     on<_ParsingXMLEvent>((event, emit) async => await _parsingXML(event, emit));
-    on<_FilterXMLEvent>((event, emit) async =>
-        await _filterPerMethod(event, emit, event.method, event.reset));
+    on<_FilterXMLEvent>((event, emit) =>
+        _filterPerMethod(event, emit, event.method, event.reset));
     on<_XMLtoExelEvent>(
         (event, emit) async => await _exportExel(event, emit, event.apiList));
     on<_ExportPostmanEvent>((event, emit) async =>
@@ -37,31 +37,33 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
   }
 
   //-----v-----//
-  init() => add(_InitXMLEvent());
+  void init() => add(_InitXMLEvent());
 
-  selectXML() => add(_SelectXMLEvent());
+  void selectXML() => add(_SelectXMLEvent());
 
-  parsingXML() => add(_ParsingXMLEvent());
+  void parsingXML() => add(_ParsingXMLEvent());
 
-  filterXML({Method? method, bool? reset}) => add(_FilterXMLEvent(
+  void filterXML({Method? method, bool? reset}) => add(_FilterXMLEvent(
         method: method,
         reset: reset,
       ));
 
-  exportExel(List<XMLModel> apiList) => add(_XMLtoExelEvent(apiList: apiList));
+  void exportExel(List<XMLModel> apiList) =>
+      add(_XMLtoExelEvent(apiList: apiList));
 
-  exportPostman(List<XMLModel> apiList) =>
+  void exportPostman(List<XMLModel> apiList) =>
       add(_ExportPostmanEvent(apiList: apiList));
 
-  onDragHover(bool isDropping) => add(_OnDropEvent(isDropping: isDropping));
+  void onDragHover(bool isDropping) =>
+      add(_OnDropEvent(isDropping: isDropping));
 
-  onPerformDrop(PerformDropEvent dropEvent) =>
+  Future<void> onPerformDrop(PerformDropEvent dropEvent) async =>
       add(_OnPerformDropEvent(dropEvent: dropEvent));
 
   //_____^_____//
 
   // Init
-  _init(XMLEvent event, Emitter<XMLState> emit) {
+  void _init(XMLEvent event, Emitter<XMLState> emit) {
     emit(XMLState.initState());
   }
 
@@ -254,7 +256,7 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
   }
 
   // Filter per Method
-  _filterPerMethod(
+  void _filterPerMethod(
       XMLEvent event, Emitter<XMLState> emit, Method? method, bool? reset) {
     if (reset != null && reset) {
       emit(state.copyWith(filterList: state.endpointList));
@@ -406,7 +408,7 @@ class XMLBloc extends Bloc<XMLEvent, XMLState> {
 
     final content = jsonEncode(postmanCollection);
     if (!kIsWeb) {
-    emit(state.copyWith(exportStatus: ExportStatus.loading));
+      emit(state.copyWith(exportStatus: ExportStatus.loading));
       final directory = await getDownloadsDirectory();
       if (directory != null) {
         // Download FILE from Native Platform

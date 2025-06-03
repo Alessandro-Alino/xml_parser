@@ -17,7 +17,7 @@ sealed class XMLState with _$XMLState {
     String? errorMex,
   }) = _XMLState;
 
-  static initState() => XMLState(
+  static XMLState initState() => XMLState(
         status: XMLStatus.initial,
         endpointList: [],
         filterList: [],
